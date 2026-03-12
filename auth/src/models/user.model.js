@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({  // blueprint tyar kr leya zaha pr user
     },
     password:{
         type:String,
+        select: false, //befaltu mai password nahi show hoga user mai
     },
     fullName:{
         firstName:{
