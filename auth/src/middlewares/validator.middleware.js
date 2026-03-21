@@ -1,14 +1,14 @@
 const {body , validationResult } = require("express-validator")
 
 const responseWithValidationErrors =(req,res,next)=>{
-    const errors = validationResult(req);
+    const errors = validationResult(req);  // yaha pr errors store ho rahe hai 
 
     if(!errors.isEmpty()){
         return res.status(400).json({
-            errors : errors.array(errors)
+            errors : errors.array(errors) // yaha pr errors display krwa raha hu
         })
     }
-    next();
+    next(); // aage chalo
 }
 
 const registerUserValidations = [
@@ -33,9 +33,31 @@ const registerUserValidations = [
         .withMessage("last name must be a string")
         .notEmpty()
         .withMessage("last name is required"),
-    responseWithValidationErrors
+    responseWithValidationErrors // jo const kr k variable bnaya hai wo hai ye
+]
+
+const loginUserValidations = [
+    body('email')
+        .optional()
+        .isEmail()
+        .withMessage('Invalid email address'),
+    body('username')
+        .optional()
+        .isString()
+        .withMessage('Username must be a string'),
+    body('password')
+        .isLength({ min: 6 })
+        .withMessage('Password must be at least 6 characters long'),
+    (req, res, next) => {
+        // koi ik to hona hi chaheye email ya username mai se nahi to error aye ga
+        if (!req.body.email && !req.body.username) { 
+            return res.status(400).json({ errors: [ { msg: 'Either email or username is required' } ] });
+        }
+       responseWithValidationErrors(req, res, next);
+    }
 ]
 
 module.exports={
-    registerUserValidations
+    registerUserValidations,
+    loginUserValidations
 }
