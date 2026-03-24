@@ -4,12 +4,17 @@ const authController = require("../controllers/auth.controllers")
 const authMiddleware = require("../middlewares/auth.middleware")
 
 const router = express.Router()
+//ye user register krne ki api hai with validator middleware or auth controller mai asli kaam ho raha hai user register krne k
 
-router.post("/register",validators.registerUserValidations,authController.registerUser) //ye user register krne ki api hai with validator middleware or auth controller mai asli kaam ho raha hai user register krne k
+router.post("/register",validators.registerUserValidations,authController.registerUser) 
+ // yaha pr login hoga user aa kr puri security lga rakhi hai middleware mai
 
-router.post('/login', validators.loginUserValidations, authController.loginUser); // yaha pr login hoga user aa kr puri security lga rakhi hai middleware mai
+ router.post('/login', validators.loginUserValidations, authController.loginUser);
+// ye user ka data lekr aa raha hai 
 
-router.get("/me",authMiddleware.authMiddleware,authController.getCurrentUser) // ye user ka data lekr aa raha hai 
+router.get("/me",authMiddleware.authMiddleware,authController.getCurrentUser) 
 
+//logout ki api
+router.get("/logout",authController.logoutUser)
 
 module.exports= router;
