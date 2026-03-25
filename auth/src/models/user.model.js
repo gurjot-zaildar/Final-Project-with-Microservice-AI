@@ -4,8 +4,9 @@ const addressSchema = new mongoose.Schema({  // yaha pr address ka alag se schem
     street:String,
     city: String,
     state: String,
-    zip: String,
+    pincode : String,
     country: String,
+    isDefault: { type: Boolean, default: false }
 });
 
 const userSchema = new mongoose.Schema({  // blueprint tyar kr leya zaha pr user ka data store hoga

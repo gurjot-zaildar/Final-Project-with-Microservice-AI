@@ -12,7 +12,7 @@ async function authMiddleware(req,res,next) {
     }
 
     try{
-        // jo token mai data tha wo decoded mai aa gya veryfy kr k
+        // jo token mai dala tha wo decoded mai aa gya veryfy kr k
         const decoded = jwt.verify(token,process.env.JWT_SECRET)
         // user mai store krwa deya data 
         const user = decoded;

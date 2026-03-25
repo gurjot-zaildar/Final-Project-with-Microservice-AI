@@ -5,7 +5,7 @@ const redis = require("../db/redis")
 
 
 async function registerUser(req,res){
-    const { username , email, password , fullName: { firstName, lastName } } = req.body;
+    const { username , email, password , fullName: { firstName, lastName }, role } = req.body;
  
     const isUserAlreadyExists = await userModel.findOne({
         // koi ik sai find kr raha hu
@@ -30,7 +30,8 @@ async function registerUser(req,res){
         fullName:{
             firstName,
             lastName
-        }
+        },
+        role: role || "user" // default role is user
     });
 
     //token bna deya 
@@ -146,9 +147,117 @@ async function logoutUser(req,res){
     })
 }
 
+//user ka address show hoga yaha pr
+async function getUserAddresses(req,res){
+
+    const id = req.user.id;
+    //user mai se only address select keya id ke help se
+    const user = await userModel.findById(id).select("addresses")
+
+    //agar user nahi hai 
+    if(!user){
+        return res.status(404).json({
+            message:"user not found"
+        })
+    }
+
+    return res.status(200).json({
+        message:"user addresses fetch successfully",
+        addresses: user.addresses
+    });
+}
+
+//yaha pr user ka address creat ho raha hai
+async function addUserAddress(req,res) {
+    
+    const id = req.user.id;
+
+    const { street, city, state, pincode, country, isDefault } = req.body;
+
+    const user= await userModel.findOneAndUpdate({ _id: id},{
+        $push: {
+            addresses: {
+                street,
+                city,
+                state,
+                pincode,
+                country,
+                isDefault
+            }
+        }
+    },{new:true});
+
+    if(!user){
+        return res.status(404).json({
+            message:"user not found"
+        });
+    }
+
+    return res.status(201).json({
+        message:"address added successfully",
+        address: user.addresses[user.addresses.length - 1], // jo last mai new address add hua hai wo dekhe ga
+    })
+
+}
+
+// yaha pr user ka address delete hoga
+async function deleteUserAddress(req,res){
+
+    const id = req.user.id;
+    const {addressId} = req.params;
+    // first user dekh rahe hai hai bhi hai ya nahi or uss mai address hai
+    const user = await userModel.findById(id).select('addresses');
+
+    //agar user nahi hai to
+    if(!user){
+        return res.status(404).json({
+            message: "user not found"
+        });
+    }
+    // address hai user mai?
+    const addressExists = user.addresses.some(addr => addr._id.toString() === addressId);
+
+    //agar address nahi hai too
+    if(!addressExists){
+        return res.status(404).json({
+            message: "address not found"
+        });
+    }
+
+    // yaha pr address delete ho raha hai
+    const updated = await userModel.findOneAndUpdate({_id: id}, {
+        $pull: {
+             addresses: { _id: addressId }
+             }
+    }, { new: true });
+
+    // agar update nahi hua
+    if(!updated){
+        return res.status(500).json({
+            message: "failed to delete address"
+        });
+    }
+
+    // 2nd time verify krwa raha hu
+    const stillExists = updated.addresses.some(addr => addr._id.toString() === addressId);
+    if(stillExists){
+        return res.status(500).json({
+            message: "failed to delete address"
+        });
+    }
+
+    return res.status(200).json({
+        message: "address deleted successfully",
+        addresses: updated.addresses
+    });
+}
+
 module.exports={
     registerUser,
     loginUser,
     getCurrentUser,
     logoutUser,
+    getUserAddresses,
+    addUserAddress,
+    deleteUserAddress,
 }

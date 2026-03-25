@@ -17,4 +17,13 @@ router.get("/me",authMiddleware.authMiddleware,authController.getCurrentUser)
 //logout ki api
 router.get("/logout",authController.logoutUser)
 
+//yaha pr user ka address fetch keya ha, first token verify keya auth middleware mai
+router.get('/users/me/addresses', authMiddleware.authMiddleware, authController.getUserAddresses);
+
+// yaha pr user ka address add ho raha hai
+router.post("/users/me/addresses", validators.addUserAddressValidations, authMiddleware.authMiddleware, authController.addUserAddress)
+
+// yaha pr user ka address delete hoga addressId ki help se
+router.delete("/users/me/addresses/:addressId", authMiddleware.authMiddleware, authController.deleteUserAddress)
+
 module.exports= router;
