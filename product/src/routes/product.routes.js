@@ -19,6 +19,15 @@ router.post("/",
 //get products 
 router.get("/",productController.getProducts)
 
+//product update hoga jo seller nai bnya hai
+router.patch("/:id",createAuthMiddleware(["seller"]),productController.updateProduct)
+
+//product deleate hoga jo seller nai bnaya hai
+router.delete("/:id",createAuthMiddleware(["seller"]),productController.deleteProduct)
+
+// seller ke sabhi product melege
+router.get("/seller",createAuthMiddleware(["seller"]),productController.getProductsBySeller)
+
 
 //get products by id 
 router.get("/:id",productController.getProductById)
